@@ -1,0 +1,31 @@
+clear all
+close all
+clc
+
+video = VideoReader('shaky_car.avi');
+nFrames = video.NumFrames;
+
+firstFrame = video.readFrame();
+[R,C,~] = size(firstFrame);
+
+% Prendiamo l'ancora dall'immagine
+figure; anchor = imcrop(firstFrame);
+anchor = rgb2gray(anchor);
+[aR,aC] = size(anchor);
+
+% Inizio stabilizzazione dei frame
+
+for i = 1:nFrames-1
+    frame = video.readFrame();
+    frame_gray = rgb2gray(frame);
+    frames(:,:,:,i)=frame;
+    cc = normxcorr2(anchor, frame_gray);
+    [max_cc, imax]=max((cc(:)));
+    [ypeak, xpeak] = ind2sub(size(cc),imax(1));
+    corr_offset = [(ypeak-size(frame,1)) (xpeak-size(frame,2))]
+    new(:,:,:,i) = imtranslate(frame,[-(corr_offset(2)+round(C/2)),...
+        -(corr_offset(1)+round(R/2))],'FillValues',0);
+end
+
+display(frames(1,1,1,1));
+
