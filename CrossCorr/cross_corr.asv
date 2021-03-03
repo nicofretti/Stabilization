@@ -81,21 +81,15 @@ function ang = findAngle(anchor,frame)
         rangeAngolo = [270,360]
     end
     
-    temp = [0,0,0];
-    midValue = 0;
+    temp = [0,0,0]; 
+    best;
     %Ricerca dicotomica
     while(stepsDicotomica ~= 0)
         
-        midAngle = rangeAngolo(1) + ((rangeAngolo(2)-rangeAngolo(1)) / 2);
-        fprintf('Steps rimasti: %d - MidAngle: %d\n', stepsDicotomica, midAngle);
+        temp(0) = 
+        temp(1) = 
+        best = max(temp(0),temp(1));
         
-%         midValue = (.....)
-%         
-%         
-%         temp(1) = 
-%         
-%         if(temp(1)-temp(0) > ( temp ))
-%         
         
         stepsDicotomica = stepsDicotomica - 1;
     end
