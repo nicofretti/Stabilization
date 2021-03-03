@@ -26,7 +26,7 @@ for i = 1:nFrames-1
     frame = video.readFrame();
     frame_gray = rgb2gray(frame);
     frames(:,:,:,i)=frame;
-    corr_offset = CustomXcorr(anchor,frame_gray);
+    [corr_offset,ang] = CustomXcorr(anchor,frame_gray);
     new(:,:,:,i) = imtranslate(frame,[-(corr_offset(2)+round(C/2)),-(corr_offset(1)+round(R/2))],'FillValues',0);
 end
 close(d);
