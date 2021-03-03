@@ -63,8 +63,10 @@ function ang = findAngle(anchor,frame)
     ang = 0;
     rangeAngolo = [0,90]; %Inizio ricerca dicotomica
     stepsDicotomica = 3; %Iterazione dicotomica (quante volte divido a metà)
+    a = crossCr(frame,0,anchor);
+    b = crossCr(frame,90,anchor);
         
-    q1 = abs(crossCr(frame,0,anchor) - crossCr(frame,90,anchor));
+    q1 = abs(a - b);
     q2 = abs(crossCr(frame,90,anchor) - crossCr(frame,180,anchor));
     q3 = abs(crossCr(frame,180,anchor) - crossCr(frame,270,anchor));
     q4 = abs(crossCr(frame,270,anchor) - crossCr(frame,0,anchor));
@@ -75,21 +77,39 @@ function ang = findAngle(anchor,frame)
     switch quadrante
     case q2
         rangeAngolo = [90,180];
+        a = b;
+        b = crossCr(frame,180,anchor);
     case q3
         rangeAngolo = [180, 270];
+        a = crossCr(frame,180,anchor);
+        b = crossCr(frame,270,anchor);
     case q4
-        rangeAngolo = [270,360]
+        rangeAngolo = [270,0];
+        b = a;
+        a = crossCr(frame,270,anchor);        
     end
     
-    temp = [0,0,0];
     midValue = 0;
     %Ricerca dicotomica
     while(stepsDicotomica ~= 0)
         
         midAngle = rangeAngolo(1) + ((rangeAngolo(2)-rangeAngolo(1)) / 2);
-        fprintf('Steps rimasti: %d - MidAngle: %d\n', stepsDicotomica, midAngle);
+        fprintf('Steps rimasti: %d - MidAngle: %.2f\n', stepsDicotomica, midAngle);
         
-%         midValue = (.....)
+         midValue = crossCr(frame,midAngle,anchor);
+         
+         %Salvo arco con xcorr maggiore       TODO forse mettere abs
+         if( abs(midValue - a) > abs(midValue - b) )             
+             rangeAngolo(2) = midAngle;
+             b = midValue;
+         else
+             rangeAngolo(1) = midAngle;
+             a = midValue;
+         end
+         
+        fprintf('Range calcolato: %.2f - %.2f\n', rangeAngolo(1), rangeAngolo(2));
+        fprintf('-------------\n');
+         
 %         
 %         
 %         temp(1) = 
@@ -98,12 +118,7 @@ function ang = findAngle(anchor,frame)
 %         
         
         stepsDicotomica = stepsDicotomica - 1;
-    end
-    
-    
-
-    
-    
+    end    
 end
 
 function m = crossCr(img,ang,anchor)
