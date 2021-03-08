@@ -53,43 +53,45 @@ axis image off;
 colormap gray;
 
 %% REGOLA EMPIRICA
-toRotate = double(rgb2gray(imread("storta.jpg")));
+inputs = double(rgb2gray(imread("storta2.jpg")));
 test = 0;
 ang = 0;
 
-%normTest = frame-mean(frame(:));
-normTest = toRotate;
+normTest = inputs-mean(inputs(:));
+%normTest = toRotate;
 findAngle(normAnchor,normTest);
 
+%% FUNCTIONS
 function ang = findAngle(anchor,toRotate)
     %Ritorna angolo di cui ruotare il frame per stabilizzarlo   
     ang = 0;
     rangeAngolo = [0,90]; %Inizio ricerca dicotomica
     STEPSDICOTOMICA = 15; %Iterazione dicotomica (quante volte divido a metà)
-    a = crossCr(toRotate,0,anchor);
-    b = crossCr(toRotate,90,anchor);
+    a = crossCorrWithAngle(toRotate,0,anchor);
+    b = crossCorrWithAngle(toRotate,90,anchor);
         
     q1 = abs(a - b);
-    q2 = abs(crossCr(toRotate,90,anchor) - crossCr(toRotate,180,anchor));
-    q3 = abs(crossCr(toRotate,180,anchor) - crossCr(toRotate,270,anchor));
-    q4 = abs(crossCr(toRotate,270,anchor) - crossCr(toRotate,0,anchor));
+    q2 = abs(b - crossCorrWithAngle(toRotate,180,anchor));
+    q3 = abs(crossCorrWithAngle(toRotate,180,anchor) - crossCorrWithAngle(toRotate,270,anchor));
+    q4 = abs(crossCorrWithAngle(toRotate,270,anchor) - a);
     quadrante = max([q1,q2,q3,q4]);
+    fprintf("0: %d\n90: %d\n180: %d\n270:%d\n",a,b,crossCorrWithAngle(toRotate,180,anchor),crossCorrWithAngle(toRotate,270,anchor));
     
-    display(quadrante);
+    
     
     switch quadrante
     case q2
         rangeAngolo = [90,180];
         a = b;
-        b = crossCr(toRotate,180,anchor);
+        b = crossCorrWithAngle(toRotate,180,anchor);
     case q3
         rangeAngolo = [180, 270];
-        a = crossCr(toRotate,180,anchor);
-        b = crossCr(toRotate,270,anchor);
+        a = crossCorrWithAngle(toRotate,180,anchor);
+        b = crossCorrWithAngle(toRotate,270,anchor);
     case q4
         rangeAngolo = [270,360];
         b = a;
-        a = crossCr(toRotate,270,anchor);        
+        a = crossCorrWithAngle(toRotate,270,anchor);        
     end
     
     midValue = 0;
@@ -97,9 +99,9 @@ function ang = findAngle(anchor,toRotate)
     while(STEPSDICOTOMICA ~= 0)
         
         midAngle = rangeAngolo(1) + (abs(rangeAngolo(1) - rangeAngolo(2)) / 2);
-        fprintf('Steps rimasti: %d - MidAngle: %.2f\n', STEPSDICOTOMICA, midAngle);
+        fprintf('Steps rimasti: %d - [%.2f,%.2f] -> MidAngle: %.2f\n', STEPSDICOTOMICA,rangeAngolo(1),rangeAngolo(2), midAngle);
         
-         midValue = crossCr(toRotate,midAngle,anchor);
+         midValue = crossCorrWithAngle(toRotate,midAngle,anchor);
          
          %Salvo arco con xcorr maggiore       TODO forse mettere abs
          if( abs(midValue - a) > abs(midValue - b) )             
@@ -110,48 +112,28 @@ function ang = findAngle(anchor,toRotate)
              a = midValue;
          end
          
-        fprintf('Range calcolato: %.2f - %.2f\n', rangeAngolo(1), rangeAngolo(2));
+        
         fprintf('-------------\n'); 
         
         STEPSDICOTOMICA = STEPSDICOTOMICA - 1;
     end 
-  
+    fprintf('Range finale [%.2f, %.2f]\n', rangeAngolo(1), rangeAngolo(2));
     figure;
-    subplot(1,3,1);
+    subplot(1,2,1);
     imagesc(toRotate);
     
-    subplot(1,3,2)
+    subplot(1,2,2)
     imagesc(imrotate(toRotate,rangeAngolo(1)));
-    
-    subplot(1,3,3);
-    imagesc(imrotate(toRotate,rangeAngolo(2)));
     
     colormap gray;
 end
 
-function m = crossCr(img,ang,anchor)
+function m = crossCorrWithAngle(img,ang,anchor)
     img = imrotate(img,ang);
     imgNorm = img-mean(img(:));
     crossCorr2 = xcorr2(imgNorm,anchor);
     [m,~] = max(crossCorr2(:));
 end
-
-%for i=0:90
-%    img = imrotate(frame,i);
-%    normTest = img-mean(img(:));
-%    crossCorr2 = xcorr2(normTest,normAnchor);
-%    [val2,pos2] = max(crossCorr2(:));
-%    if val2>=test || val2==val
-%        ang=i;
-%        test=val2;
-%        display(i);
-%    end
-%end
-%
-%display(ang);
-%figure;
-%imagesc(imrotate(frame,ang));
-
 
 
 
