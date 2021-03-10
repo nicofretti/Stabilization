@@ -1,7 +1,7 @@
-function stabilizedFrame = CustomXcorr(anchor,frame)
-
+function [stabilizedFrame,ang] = CustomXcorr(anchor,frame,angol)
+    [R,C,~] = size(frame);
     %Trovo angolo e aggiorno il frame
-    ang = findAngle(anchor,frame);    
+    ang = findAngle(anchor,frame,angol);    
     frame = imrotate(frame,ang);
     
     %Trovo traslazione e aggiorno il frame
@@ -13,9 +13,31 @@ function stabilizedFrame = CustomXcorr(anchor,frame)
     
 end
 
-function ang = findAngle(anchor,frame)
-    ang = testInRange(anchor,frame,0,360,10);
+function ang = findAngle(anchor,frame,angol)
+    start = 0;
+    stop = 360;
+    if angol~=-1
+        step=10;
+        if angol<0
+            start=0;
+            stop=90;
+        end
+        if angol>=90 && angol<=180
+            start=90;
+            stop=180;
+        end
+        if angol>180 && angol<=270
+            start=180;
+            stop=270;
+        end
+        if angol>270
+            start=270;
+            stop=360;
+        end
+    end
+    ang = testInRange(anchor,frame,start,stop,10);
     ang = testInRange(anchor,frame,ang-5,ang+5,1);
+    fprintf("\n ANGOLO GREZZO: %d",ang); 
 end
 
 function a = testInRange(anchor,toRotate,startAng,stopAng,step)
@@ -25,26 +47,22 @@ function a = testInRange(anchor,toRotate,startAng,stopAng,step)
     a = startAng;
     ANGOLO = startAng;
     m = 0;
-    while(ANGOLO ~= stopAng+1)
-        val = crossXCorrAng(toRotate,ANGOLO,anchor);
+    while(ANGOLO <= stopAng)
+        val = crossCorrWithAngle(toRotate,ANGOLO,anchor);
         if val >= m
             m = val;
             a = ANGOLO;
-            display(val);
-            if val == 1
+            if val == 1 || 1-val<=0.05
                 break;
             end
         end
         ANGOLO= ANGOLO + step;
-        fprintf("\nStep:%d",ANGOLO);
-    end
-    fprintf("\n ANGOLO GREZZO: %d",a);      
+    end     
 end
 
 
-function m = crossXCorrAng(img,ang,anchor)
-    img = imrotate(img,ang);
-    imgNorm = img-mean(img(:));
-    crossCorr2 = xcorr2(imgNorm,anchor);
+function m = crossCorrWithAngle(img,ang,anchor)
+    irot  = imrotate(img,ang);
+    crossCorr2 = normxcorr2(anchor,irot);
     [m,~] = max(crossCorr2(:));
 end
