@@ -51,45 +51,18 @@ imagesc(posing);
 axis image off;
 colormap gray;
 
-%% RUN
+%% REGOLA EMPIRICA
 frame = double(rgb2gray(imread("35.jpg")));
+test = 0;
+ang = 0;
 
-% DEPRECATED
 %figure;
 %display("ESECUZIONE VELOCE");
-%findAngleE(normAnchor,frame);
-
+%findAngle(normAnchor,frame);
 display("ESECUZIONE GREZZA");
-ang = findAngle(normAnchor,frame);
-imagesc(imrotate(imread("35.jpg"),ang));
+findAngleG(normAnchor,frame);
 %% FUNCTIONS
-function a = findAngle(anchor,toRotate)
-    %Normalizzo toRotate
-    a = 0;
-    ANGOLO = 360;
-    m = 0;
-    while(ANGOLO ~= 0)
-        val = crossCorrWithAngle(toRotate,ANGOLO,anchor);
-        if val >= m
-            m = val;
-            a = ANGOLO;
-            display(a);
-        end
-        ANGOLO= ANGOLO - 1;
-    end
-    fprintf("\n ANGOLO GREZZO: %d",a);
-      
-end
-
-function m = crossCorrWithAngle(img,ang,anchor)
-    irot  = imrotate(img,ang);
-    %Normalizzo l'immagine
-    irot = irot - mean(irot(:));
-    crossCorr2 = xcorr2(irot,anchor);
-    [m,~] = max(crossCorr2(:));
-end
-
-function ang = findAngleE(anchor,toRotate)
+function ang = findAngle(anchor,toRotate)
     %Normalizzo toRotate
     %Ritorna angolo di cui ruotare il frame per stabilizzarlo   
     ang = 0;
@@ -153,3 +126,31 @@ function ang = findAngleE(anchor,toRotate)
     
     colormap gray;
 end
+
+function a = findAngleG(anchor,toRotate)
+    %Normalizzo toRotate
+    a = 0;
+    ANGOLO = 360;
+    m = 0;
+    while(ANGOLO ~= 0)
+        val = crossCorrWithAngle(toRotate,ANGOLO,anchor);
+        if val >= m
+            m = val;
+            a = ANGOLO;
+            display(a);
+        end
+        ANGOLO= ANGOLO - 1;
+    end
+    fprintf("\n ANGOLO GREZZO: %d",a);
+      
+end
+
+function m = crossCorrWithAngle(img,ang,anchor)
+    irot  = imrotate(img,ang);
+    %Normalizzo l'immagine
+    irot = irot - mean(irot(:));
+    crossCorr2 = xcorr2(irot,anchor);
+    [m,~] = max(crossCorr2(:));
+end
+
+
