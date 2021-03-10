@@ -18,8 +18,7 @@ figure();imagesc(rect);
 
 %--
 % Normalize image to mean
-%normImg = template - mean(template(:));
-normImg = template;
+normImg = template - mean(template(:));
 normAnchor = normImg(rangeX,rangeY);
 
 %--
@@ -58,11 +57,15 @@ test = 0;
 ang = 0;
 
 normTest = inputs-mean(inputs(:));
-%normTest = toRotate;
-findAngle(normAnchor,normTest);
-
+figure;
+%display("ESECUZIONE VELOCE");
+%findAngle(normAnchor,normTest);
+%display("ESECUZIONE GREZZA");
+%findAngleG(normAnchor,normTest);
 %% FUNCTIONS
 function ang = findAngle(anchor,toRotate)
+    %Normalizzo toRotate
+    toRotate = toRotate-mean(toRotate(:));
     %Ritorna angolo di cui ruotare il frame per stabilizzarlo   
     ang = 0;
     rangeAngolo = [0,90]; %Inizio ricerca dicotomica
@@ -75,9 +78,6 @@ function ang = findAngle(anchor,toRotate)
     q3 = abs(crossCorrWithAngle(toRotate,180,anchor) - crossCorrWithAngle(toRotate,270,anchor));
     q4 = abs(crossCorrWithAngle(toRotate,270,anchor) - a);
     quadrante = max([q1,q2,q3,q4]);
-    fprintf("0: %d\n90: %d\n180: %d\n270:%d\n",a,b,crossCorrWithAngle(toRotate,180,anchor),crossCorrWithAngle(toRotate,270,anchor));
-    
-    
     
     switch quadrante
     case q2
@@ -116,7 +116,8 @@ function ang = findAngle(anchor,toRotate)
         fprintf('-------------\n'); 
         
         STEPSDICOTOMICA = STEPSDICOTOMICA - 1;
-    end 
+    end
+    ang = rangeAngolo(1);
     fprintf('Range finale [%.2f, %.2f]\n', rangeAngolo(1), rangeAngolo(2));
     figure;
     subplot(1,2,1);
@@ -128,17 +129,30 @@ function ang = findAngle(anchor,toRotate)
     colormap gray;
 end
 
-function m = crossCorrWithAngle(img,ang,anchor)
-    img = imrotate(img,ang);
-    imgNorm = img-mean(img(:));
-    crossCorr2 = xcorr2(imgNorm,anchor);
-    [m,~] = max(crossCorr2(:));
+function a = findAngleG(anchor,toRotate)
+    %Normalizzo toRotate
+    a = 0;
+    ANGOLO = 360;
+    toRotate = toRotate-mean(toRotate(:));
+    m = 0;
+    while(ANGOLO ~= 0)
+        val = crossCorrWithAngle(toRotate,ANGOLO,anchor);
+        if val >= m
+            m = val;
+            a = ANGOLO;
+            display(a);
+        end
+        ANGOLO= ANGOLO - 1;
+    end
+    fprintf("\n ANGOLO GREZZO: %d",a);
+    
+    
 end
 
-
-
-
-
-
+function m = crossCorrWithAngle(img,ang,anchor)
+    img = imrotate(img,ang,'bilinear','crop');
+    crossCorr2 = xcorr2(img,anchor);
+    [m,~] = max(crossCorr2(:));
+end
 
 
