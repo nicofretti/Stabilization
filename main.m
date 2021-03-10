@@ -1,10 +1,7 @@
-clear all;
-close all;
-clc;
-
+clear all; close all; clc;
 
 display("Inizio programma...");
-video = VideoReader('input\test_black.avi');
+video = VideoReader('input\test.mp4');
 nFrames = video.NumFrames;
 
 firstFrame = video.readFrame();
@@ -16,21 +13,20 @@ anchor = rgb2gray(anchor);
 [aR,aC] = size(anchor);
 close all;
 display(nFrames);
-% Inizio stabilizzazione dei frame
 
+% Inizio stabilizzazione dei frame
 fig = uifigure;
 d = uiprogressdlg(fig,'Title','Please Wait');
 drawnow
-for i = 1:nFrames-1
+for i = 1:nFrames-300
     d.Value = i/nFrames;
     frame = video.readFrame();
     frame_gray = rgb2gray(frame);
-    frames(:,:,:,i)=frame;
-    [corr_offset,ang] = CustomXcorr(anchor,frame_gray);
-    new(:,:,:,i) = imtranslate(frame,[-(corr_offset(2)+round(C/2)),-(corr_offset(1)+round(R/2))],'FillValues',0);
+    frames(:,:,:,i) = frame;
+    new(:,:,:,i) = CustomXcorr(anchor,frame_gray); %Stabilized frame
 end
 close(d);
-output = VideoWriter('output.mp4');
+output = VideoWriter('PROVAA.mp4');
 open(output);
 for i=1:size(frames,4)
     writeVideo(output,new(:,:,:,i));

@@ -74,8 +74,7 @@ function a = findAngle(anchor,toRotate,startAng,stopAng,step)
         ANGOLO= ANGOLO + step;
         fprintf("\nStep:%d",ANGOLO);
     end
-    fprintf("\n ANGOLO GREZZO: %d",a);
-      
+    fprintf("\n ANGOLO GREZZO: %d",a);      
 end
 
 function m = crossCorrWithAngle(img,ang,anchor)
