@@ -1,7 +1,7 @@
 clear all; close all; clc;
 
 display("Inizio programma...");
-video = VideoReader('input\test_black.mp4');
+video = VideoReader('input\0.avi');
 nFrames = video.NumFrames;
 
 firstFrame = video.readFrame();
@@ -19,13 +19,13 @@ fig = uifigure;
 d = uiprogressdlg(fig,'Title','Please Wait');
 drawnow
 ang = -1;
-for i = 1:nFrames
+for i = 1:nFrames-1
     d.Value = i/nFrames;
     frame = video.readFrame();
     frame_gray = rgb2gray(frame);
     frames(:,:,:,i) = frame;
     %1080x1920
-    f = zeros(1147,1957);
+    f = zeros(350,350);
     [tmp,ang] = CustomXcorr(anchor,frame_gray,ang);
     m = min(1147,size(tmp,1));
     n = min(1957,size(tmp,2));
@@ -36,7 +36,7 @@ close(d);
 output = VideoWriter('PROVAA.mp4');
 open(output);
 for i=1:size(frames,4)
-    writeVideo(output,new(:,:,:,i));
+    writeVideo(output,mat2gray(new(:,:,:,i)));
 end
 close(output);
 display("Fine programma.");
