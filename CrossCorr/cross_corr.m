@@ -1,7 +1,7 @@
 clear all;
 close all;
 clc
-template = double(rgb2gray(imread("template.jpg")));
+template = double(rgb2gray(imread("template3.jpg")));
 fig = figure;
 imagesc(template)
 axis image off;
@@ -12,18 +12,11 @@ colormap gray;
 ancor_mat = getrect();
 rangeY = int32(ancor_mat(1):ancor_mat(1) + ancor_mat(3));
 rangeX = int32(ancor_mat(2):ancor_mat(2) + ancor_mat(4));
-rect = template(rangeX,rangeY);
-
-figure();imagesc(rect);
-
-%--
-% Normalize image to mean
-normImg = template - mean(template(:));
-normAnchor = normImg(rangeX,rangeY);
+anchor = template(rangeX,rangeY);
 
 %--
 % Cross-correlation
-crossCorr = xcorr2(normImg,normAnchor);
+crossCorr = normxcorr2(anchor,template);
 
 % Get position
 [val,pos] = max(crossCorr(:)); %pos = valore dove xcorr è massimo
@@ -33,12 +26,12 @@ display(val);
 [cc,rr] = ind2sub(size(crossCorr),pos);
 
 % Dove la cross correlazione deve iniziare
-r_X = cc - size(rect,1);
-r_Y = rr - size(rect,2);
+r_X = cc - size(anchor,1);
+r_Y = rr - size(anchor,2);
 
 %Display
 posing = template * 0.3;
-posing(r_X + 1:cc, r_Y + 1:rr) = rect;
+posing(r_X + 1:cc, r_Y + 1:rr) = anchor;
 
 %figure;
 %subplot(2,2,1);
@@ -52,30 +45,34 @@ axis image off;
 colormap gray;
 
 %% RUN
-frame = double(rgb2gray(imread("35.jpg")));
+frame = double(rgb2gray(imread("template33.jpg")));
 
 % DEPRECATED
 %figure;
 %display("ESECUZIONE VELOCE");
-%findAngleE(normAnchor,frame);
+%findAngleE(anchor,frame);
 
-display("ESECUZIONE GREZZA");
-ang = findAngle(normAnchor,frame);
-imagesc(imrotate(imread("35.jpg"),ang));
+ang = findAngle(anchor,frame,0,359,10);
+ang = findAngle(anchor,frame,ang-5,ang+5,1);
+imagesc(imrotate(imread("template33.jpg"),ang));
 %% FUNCTIONS
-function a = findAngle(anchor,toRotate)
+function a = findAngle(anchor,toRotate,startAng,stopAng,step)
     %Normalizzo toRotate
-    a = 0;
-    ANGOLO = 360;
+    a = startAng;
+    ANGOLO = startAng;
     m = 0;
-    while(ANGOLO ~= 0)
+    while(ANGOLO ~= stopAng+1)
         val = crossCorrWithAngle(toRotate,ANGOLO,anchor);
         if val >= m
             m = val;
             a = ANGOLO;
-            display(a);
+            display(val);
+            if val == 1
+                break;
+            end
         end
-        ANGOLO= ANGOLO - 1;
+        ANGOLO= ANGOLO + step;
+        fprintf("\nStep:%d",ANGOLO);
     end
     fprintf("\n ANGOLO GREZZO: %d",a);
       
@@ -83,9 +80,7 @@ end
 
 function m = crossCorrWithAngle(img,ang,anchor)
     irot  = imrotate(img,ang);
-    %Normalizzo l'immagine
-    irot = irot - mean(irot(:));
-    crossCorr2 = xcorr2(irot,anchor);
+    crossCorr2 = normxcorr2(anchor,irot);
     [m,~] = max(crossCorr2(:));
 end
 
