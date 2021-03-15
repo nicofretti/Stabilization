@@ -10,33 +10,43 @@ firstFrame = video.readFrame();
 % Prendiamo l'ancora dall'immagine
 figure; anchor = imcrop(firstFrame);
 anchor = rgb2gray(anchor);
+
+display(size(anchor));
+
 [aR,aC] = size(anchor);
 close all;
 display(nFrames);
 
 % Inizio stabilizzazione dei frame
 fig = uifigure;
-d = uiprogressdlg(fig,'Title','Please Wait');
+d = uiprogressdlg(fig,'Title','Attendere');
 drawnow
-ang = -1;
+ang = -1000;
 for i = 1:nFrames-1
-    d.Value = i/nFrames;
+    d.Value = i/nFrames; %progress bar
     frame = video.readFrame();
-    frame_gray = rgb2gray(frame);
+    
+    display(size(frame));
+    
     frames(:,:,:,i) = frame;
-    %1080x1920
-    f = zeros(350,350);
-    [tmp,ang] = CustomXcorr(anchor,frame_gray,ang);
-    m = min(1147,size(tmp,1));
-    n = min(1957,size(tmp,2));
-    f(1:m,1:n)= tmp(1:m,1:n); 
-    new(:,:,:,i) =  f; %Stabilized frame
+    frame_gray = rgb2gray(frame);
+    %f = zeros(350,350);
+    [stabilizedFrame,ang] = CustomXcorr(R,C,anchor,frame_gray,ang,i);
+    
+    %add black padding to stabilized image
+    %m = min(240,size(tmp,1));
+    %n = min(135,size(tmp,2));
+    %f(1:m,1:n) = tmp(1:m,1:n); 
+    
+    %add stabilized frame to video output
+    videoOutput(:,:,:,i) = stabilizedFrame;    
 end
 close(d);
-output = VideoWriter('PROVAA.mp4');
+output = VideoWriter('output.mp4');
 open(output);
+
 for i=1:size(frames,4)
-    writeVideo(output,mat2gray(new(:,:,:,i)));
+    writeVideo(output,mat2gray(videoOutput(:,:,:,i)));
 end
 close(output);
 display("Fine programma.");
