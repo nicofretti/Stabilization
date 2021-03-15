@@ -1,7 +1,7 @@
 clear all; close all; clc;
 
 display("Inizio programma...");
-video = VideoReader('input\0.avi');
+video = VideoReader('input\shaky_car.avi');
 nFrames = video.NumFrames;
 
 firstFrame = video.readFrame();
@@ -23,15 +23,14 @@ d = uiprogressdlg(fig,'Title','Attendere');
 drawnow
 ang = -1000;
 for i = 1:nFrames-1
-    d.Value = i/nFrames; %progress bar
+    %d.Value = i/nFrames; %progress bar
     frame = video.readFrame();
-    
-    display(size(frame));
-    
+        
     frames(:,:,:,i) = frame;
     frame_gray = rgb2gray(frame);
     %f = zeros(350,350);
-    [stabilizedFrame,ang] = CustomXcorr(R,C,anchor,frame_gray,ang,i);
+    [stabilizedFrame,ang] = CustomXcorr(round(R/2),round(C/2),...
+        anchor,frame_gray,ang,i);
     
     %add black padding to stabilized image
     %m = min(240,size(tmp,1));

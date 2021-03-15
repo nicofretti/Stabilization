@@ -3,34 +3,23 @@ function [stabilizedFrame,ang] = CustomXcorr(C, R, anchor,frame,angol,i)
     %frame --> il frame da stabilizzare rispetto ad anchor
           
     %Trovo angolo di cui ruotare, ruoto il frame
-    %ang = findAngle(anchor,frame,angol);    
-    %frame = imrotate(frame,ang,'bilinear','crop'); 
-    ang = 0;
-    
-    display(size(frame));
+    ang = findAngle(anchor,frame,angol);    
+    frame = imrotate(frame,ang,'bilinear','crop'); 
     
     cc = normxcorr2(anchor,frame);
     [max_cc, imax] = max((cc(:)));
     [ypeak, xpeak] = ind2sub(size(cc),imax(1));
-    corr_offset = [(ypeak-size(frame,1)) (xpeak-size(frame,2))];
     
-    stabilizedFrame = imtranslate(frame,[-(corr_offset(2)+round(C/2)),-(corr_offset(1)+round(R/2))],'FillValues',0);   
-    
+    sizeAnchor = size(anchor);
+    centerAnchor = [xpeak-round(sizeAnchor(2)/2),ypeak-round(sizeAnchor(1)/2)];
+    offset = [R-centerAnchor(1),C-centerAnchor(2)];
+    stabilizedFrame = imtranslate(frame,offset,'FillValues',0);   
     subplot(221); imagesc(anchor); axis image; title('Ancora scelta');
     subplot(222); imagesc(frame); axis image;  title(strcat('Immagine originale: ', num2str(i)));
-    hold on;
-    
-    [cc,rr] = ind2sub(size(cc),imax);
-    
-    r_X = cc - size(anchor,1);
-    r_Y = rr - size(anchor,2);
-    
-    posing = frame * 0.3;
-    posing(r_X + 1:cc, r_Y + 1:rr) = anchor;
-    
-    subplot(223); imshow(posing);
+    hold on; 
+    scatter(xpeak, ypeak,'rX');
+    scatter(centerAnchor(1), centerAnchor(2),'rX');
     subplot(224); imshow(stabilizedFrame); title('Immagine stabilizzata');  
-    
     pause(0.025);
     
 end
