@@ -1,4 +1,4 @@
-function [stabilizedFrame,ang] = CustomXcorr(C, R, anchor,frame,angol,i)
+function [offset,ang] = CustomXcorr(C, R, anchor,frame,angol,i)
     %anchor --> riferimento rispetto a cui stabilzzare frame
     %frame --> il frame da stabilizzare rispetto ad anchor
           
@@ -13,42 +13,22 @@ function [stabilizedFrame,ang] = CustomXcorr(C, R, anchor,frame,angol,i)
     sizeAnchor = size(anchor);
     centerAnchor = [xpeak-round(sizeAnchor(2)/2),ypeak-round(sizeAnchor(1)/2)];
     offset = [R-centerAnchor(1),C-centerAnchor(2)];
-    stabilizedFrame = imtranslate(frame,offset,'FillValues',0);   
-    subplot(221); imagesc(anchor); axis image; title('Ancora scelta');
-    subplot(222); imagesc(frame); axis image;  title(strcat('Immagine originale: ', num2str(i)));
-    hold on; 
-    scatter(xpeak, ypeak,'rX');
-    scatter(centerAnchor(1), centerAnchor(2),'rX');
-    subplot(224); imshow(stabilizedFrame); title('Immagine stabilizzata');  
-    pause(0.025);
-    
+       
+    %subplot(221); imagesc(anchor); axis image; title('Ancora scelta');
+    %subplot(222); imagesc(frame); axis image;  title(strcat('Immagine originale: ', num2str(i)));
+    %hold on; 
+    %scatter(xpeak, ypeak,'rX');
+    %scatter(centerAnchor(1), centerAnchor(2));
+    %subplot(224); imshow(stabilizedFrame); title('Immagine stabilizzata');  
+    %pause(0.025);
 end
 
 function ang = findAngle(anchor,frame,angol)
-    start = 0;
-    stop = 360;
-    if angol~=-1000
-        step=10;
-        if angol<0
-            start=0;
-            stop=90;
-        end
-        if angol>=90 && angol<=180
-            start=90;
-            stop=180;
-        end
-        if angol>180 && angol<=270
-            start=180;
-            stop=270;
-        end
-        if angol>270
-            start=270;
-            stop=360;
-        end
-    end
-    ang = testInRange(anchor,frame,start,stop,10);
-    ang = testInRange(anchor,frame,ang-5,ang+5,1);
-    fprintf("\n ANGOLO GREZZO: %d",ang); 
+    start = -10 + angol;
+    stop = 10 + angol;
+    
+    ang = testInRange(anchor,frame,start,stop,10); % 3 controlli
+    ang = testInRange(anchor,frame,ang-2,ang+2,1); % 5 controlli 
 end
 
 function a = testInRange(anchor,toRotate,startAng,stopAng,step)
