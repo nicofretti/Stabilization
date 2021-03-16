@@ -43,14 +43,13 @@ function a = testInRange(anchor,toRotate,startAng,stopAng,step)
         if val >= m
             m = val;
             a = ANGOLO;
-            if val == 1 || 1-val<=0.05
+            if val == 1 || (1-val) <= 0.05
                 break;
             end
         end
         ANGOLO= ANGOLO + step;
     end     
 end
-
 
 function m = crossCorrWithAngle(img,ang,anchor)
     irot  = imrotate(img,ang, 'bilinear', 'crop');

@@ -1,0 +1,80 @@
+\documentclass[12pt]{article}
+\usepackage[italian]{babel}
+\usepackage{graphicx}
+\usepackage{titling}
+\usepackage{multicol}
+\usepackage{titlesec}
+\usepackage{hyperref} %To setup table of content links
+%\usepackage{changepage}
+\usepackage{geometry} %To modify margins
+
+
+ \geometry{
+ a4paper,
+ total={170mm,257mm},
+ left=20mm,
+ top=20mm,
+ }
+
+\hypersetup{
+    colorlinks,
+    citecolor=black,
+    filecolor=black,
+    linkcolor=black,
+    urlcolor=black
+}
+
+\newcommand{\sectionbreak}{\clearpage}%To start a section on a new page
+
+%=========================================
+\begin{document}
+
+
+\begin{titlepage}
+   \begin{center}
+       \vspace*{1cm}
+ 
+	\large
+      {\huge \textbf{Elaborato ESI Stabilizzazione video} }
+ 
+       \vspace{1.5cm}
+ 
+       \textbf{Nicolò Fretti - Stefano Nicolis}\\
+	\textbf{A.A. 2020-2021}\\
+	\vspace{0.35cm}
+	\textbf{\today}
+
+\vfill
+\begin{figure}[h!]
+	\begin{center}
+	  \includegraphics[height=6cm, width=6cm]{media/logounivr}
+	\end{center}
+\end{figure}
+ 
+	\vfill
+ 	\textbf{Corso di \\
+       Elaborazioni dei Segnali e Immagini\\}
+ 
+       \vspace{3cm}
+ 
+      \begin{multicols}{2}
+      \textbf{Università degli Studi di Verona\\
+	 Dipartimento di Informatica}
+	\end{multicols}
+ 
+   \end{center}
+\end{titlepage}
+
+
+\tableofcontents
+
+\section{Introduzione}
+Viene richiesta la progettazione del codice MatLab per la stabilizzazione un video. Quest'ultima, preso in input un video, deve operare sulla traslazione e rotazione dello stesso in modo da stabilizzarlo secondo un'ancora, ovvero una porzione di video selezionata dall'utente.
+
+\section{Approccio utilizzato}
+L'operazione che rende possible la stabilizzazione è la cross-corellazione: essa permette di trovare la differenza di posizione e rotazione della porzione di frame corrente contenente la caratteristica da tracciare rispetto all'ancora. Trovate queste due informazioni, al frame attuale vengono applicate le trasformazioni inverse. Ripetendo queste operazioni per ogni frame il risultato è un video che presenta l'ancora al centro del frame, stabile rispetto a traslazione e rotazione.
+
+Gli spazi vuoti lasciati dall'imagine traslata vengono riempiti di nero.
+
+\section{Considerazioni finali}
+\end{document}
