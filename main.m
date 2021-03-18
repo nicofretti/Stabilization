@@ -3,32 +3,15 @@ clear all; close all; clc;
 global R C; %Current video dimensions
 global video nFrames anchor;
 global fig sub1 sub2;
-global btnFileChooser btnStabilizer
+global btnFileChooser btnStabilizer btnReplay;
+global path file;
 
 display("-Inizio programma");
-
-% %%
-% v1 = VideoReader(strcat(path, file));
-% v2 = VideoReader('output.avi');
-% fig = gcf;
-% 
-% ax1 = subplot(1,2,1, 'Parent', fig);
-% title('Video originale');
-% axis off; 
-% 
-% ax2 = subplot(1,2,2, 'Parent', fig);
-% axis off; 
-% for i = 1:nFrames-1
-%   image(ax1, v1.read(i));
-%   image(ax2, v2.read(i));
-%   drawnow
-% end
-
 %Show GUI
 createPanelAxisTitle();
 
 function createPanelAxisTitle()
-    global fig sub1 sub2 btnFileChooser btnStabilizer;
+    global fig sub1 sub2 btnFileChooser btnStabilizer btnReplay;
     
     % Create panel
     fig = figure();
@@ -49,11 +32,17 @@ function createPanelAxisTitle()
     btnStabilizer = uicontrol(fig,'unit','pixel','style','pushbutton','string','Stabilize',...
             'position',[140 10 75 25], 'tag','PBButton123','callback',...
             {@stabilizeVideo});
+    
+    btnReplay = uicontrol(fig,'unit','pixel','style','pushbutton','string','Play',...
+            'position',[350 10 75 25], 'tag','PBButton123','callback',...
+            {@replayVideo});
+    
+    set(btnReplay, 'Enable', 'off');
 end
 
 function chooseVideo(hObject,eventdata)
-    global nFrames R C anchor video sub1 sub2;
-    
+    global nFrames btnReplay file path R C anchor video sub1 sub2;
+    set(btnReplay, 'Enable', 'off');
     %Load file
     [file, path] = uigetfile('*');
     
@@ -80,17 +69,18 @@ function chooseVideo(hObject,eventdata)
 end
 
  function stabilizeVideo(hObject,eventdata) 
-    global nFrames sub2 video R C anchor btnStabilizer;
+    global nFrames path file sub1 sub2 video R C anchor btnStabilizer ...
+        btnReplay;
     
     set(btnStabilizer, 'Enable', 'off');
- 
+    set(btnReplay, 'Enable', 'off');
    % Inizio stabilizzazione dei frame
     %fig = uifigure;
     %d = uiprogressdlg(fig,'Title','Attendere');
     %drawnow
     ang = 0;
     for i = 1:nFrames-1    
-        display(i/nFrames);
+        %display(i/nFrames);
         %d.Value = i/nFrames; % Progress bar    
         %d.Message = 'Frame analizzati ' + sprintf("%d",i) + '/' + sprintf("%d",nFrames);
 
@@ -98,9 +88,7 @@ end
         [offset,ang] = CustomXcorr(R,C,anchor,rgb2gray(frame),ang,i);
         stabilizedFrame = imtranslate(imrotate(frame,ang,'bilinear','crop')...
             ,offset,'FillValues',0);
-        
-        image(sub2, stabilizedFrame);
-
+        %image(sub2, stabilizedFrame);
         videoOutput(:,:,:,i) = stabilizedFrame; %add stabilized frame to video output  
     end
 
@@ -114,6 +102,24 @@ end
     end
     display("Done");
     close(output);
-    
+    v1 = VideoReader(strcat(path, file));
+    v2 = VideoReader('output.avi');
+    for i = 1:nFrames-1
+      image(sub1, v1.read(i));
+      image(sub2, v2.read(i));
+      drawnow
+    end
     set(btnStabilizer, 'Enable', 'on');
-end
+    set(btnReplay, 'Enable', 'on');
+ end
+
+ function replayVideo(hObject,eventdata)
+    global nFrames file path sub1 sub2;
+    v1 = VideoReader(strcat(path, file));
+    v2 = VideoReader('output.avi');
+    for i = 1:nFrames-1
+      image(sub1, v1.read(i));
+      image(sub2, v2.read(i));
+      drawnow
+    end
+ end
