@@ -16,7 +16,6 @@ function createPanelAxisTitle()
     
     % Create panel
     fig = figure('Resize','off');
-    set(fig, 'DefaultFigurePosition', [550,450,650,375]);
 
     sub1 = subplot(1,2,1, 'Parent', fig);
     axis off;
@@ -25,15 +24,15 @@ function createPanelAxisTitle()
     axis off;
        
     % Buttons
-    btnFileChooser = uicontrol(fig,'unit','pixel','style','pushbutton','string','Choose video',...
+    btnFileChooser = uicontrol(fig,'unit','pixel','style','pushbutton','string','Scegli video',...
             'position',[50 10 75 25], 'tag','PBButton123','callback',...
             {@chooseVideo});        
     
-    btnStabilizer = uicontrol(fig,'unit','pixel','style','pushbutton','string','Stabilize',...
+    btnStabilizer = uicontrol(fig,'unit','pixel','style','pushbutton','string','Stabilizza',...
             'position',[140 10 75 25],'callback',...
             {@stabilizeVideo});
     
-    btnReplay = uicontrol(fig,'unit','pixel','style','pushbutton','string','Play',...
+    btnReplay = uicontrol(fig,'unit','pixel','style','pushbutton','string','Riproduci',...
             'position',[350 10 75 25],'callback',...
             {@replayVideo});
         
@@ -66,8 +65,8 @@ function chooseVideo(hObject,eventdata)
         %Check risoluzione
         res = R*C; 
         tipo = 3;% res > 1280*720
-        if( res <= 854*480) tipo = 1; end;
-        if( res >= 854*480 && res <= 1280*720) tipo = 2; end;    
+        if( res < 640*480) tipo = 1; end;
+        if( res >= 640*480 && res < 1280*720) tipo = 2; end;    
         
         display(tipo);
         
@@ -94,8 +93,10 @@ end
     %Inizio stabilizzazione dei frame
     video.CurrentTime = videoStart;
     ang = 0;
+    f = waitbar(0,"Attendere la stabilizzazione 0/0");
     for i = 1:nFrames-1
-
+        text = sprintf('Attendere la stabilizzazione %d/%d',i,nFrames);
+        waitbar(i/nFrames,f,text);
         frame = video.readFrame();
         [offset,ang] = CustomXcorr(R,C,anchor,rgb2gray(frame),ang,tipo);
         stabilizedFrame = imtranslate(imrotate(frame,ang,'bilinear','crop')...
@@ -104,15 +105,15 @@ end
         videoOutput(:,:,:,i) = stabilizedFrame; %add stabilized frame to video output  
     end
 
-    %close(fig);
-    fprintf("Output file...\n");
+    close(f);
+    
     % Write stabilized video
     output = VideoWriter('output');
     open(output);
     for i=1:nFrames-1
         writeVideo(output,mat2gray(videoOutput(:,:,:,i)));
     end
-    fprintf("Done\n");
+    fprintf("\nDone...\n");
     close(output);
     v1 = VideoReader(strcat(path, file));
     v2 = VideoReader('output.avi');

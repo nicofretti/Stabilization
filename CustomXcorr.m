@@ -31,7 +31,7 @@ function ang = findAngle(anchor,frame,angol,tipo)
     start = -offset + angol;
     stop = offset + angol;
     
-    fprintf("Range [%d-%d]", start,stop);
+    fprintf("\nRange [%d, %d]", start,stop);
     
     ang = testInRange(anchor, frame, start, stop, 10); %3 controlli
     ang = testInRange(anchor, frame, ang-offset2, ang+offset2, 1); %5 controlli 
