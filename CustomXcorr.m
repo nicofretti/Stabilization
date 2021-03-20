@@ -1,11 +1,12 @@
-function [offset,ang] = CustomXcorr(C, R, anchor,frame,angol,i)
+function [offset,ang] = CustomXcorr(C, R, anchor,frame,angol,tipo)
     %anchor --> riferimento rispetto a cui stabilzzare frame
     %frame --> il frame da stabilizzare rispetto ad anchor
-          
-    %Trovo angolo di cui ruotare, ruoto il frame
-    ang = findAngle(anchor,frame,angol);    
+    
+    %Calcolo rotazione
+    ang = findAngle(anchor,frame,angol,tipo);    
     frame = imrotate(frame,ang,'bilinear','crop'); 
     
+    %Calcolo traslazione
     cc = normxcorr2(anchor,frame);
     [max_cc, imax] = max((cc(:)));
     [ypeak, xpeak] = ind2sub(size(cc),imax(1));
@@ -13,22 +14,27 @@ function [offset,ang] = CustomXcorr(C, R, anchor,frame,angol,i)
     sizeAnchor = size(anchor);
     centerAnchor = [xpeak-round(sizeAnchor(2)/2),ypeak-round(sizeAnchor(1)/2)];
     offset = [R-centerAnchor(1),C-centerAnchor(2)];
-       
-    %subplot(221); imagesc(anchor); axis image; title('Ancora scelta');
-    %subplot(222); imagesc(frame); axis image;  title(strcat('Immagine originale: ', num2str(i)));
-    %hold on; 
-    %scatter(xpeak, ypeak,'rX');
-    %scatter(centerAnchor(1), centerAnchor(2));
-    %subplot(224); imshow(stabilizedFrame); title('Immagine stabilizzata');  
-    %pause(0.025);
 end
 
-function ang = findAngle(anchor,frame,angol)
-    start = -10 + angol;
-    stop = 10 + angol;
+function ang = findAngle(anchor,frame,angol,tipo)
+
+    offset = 0; offset2 = 0;
+    switch tipo
+        case 1
+            offset = 30; offset2 = 5; %7 + 10 controlli
+        case 2 
+            offset = 20; offset2 = 2; %5 + 4 controlli
+        otherwise % tipo = 3, res > 1280*720
+            offset = 10; offset2 = 1; %3 + 3 controlli
+    end
     
-    ang = testInRange(anchor,frame,start,stop,10); % 3 controlli
-    ang = testInRange(anchor,frame,ang-2,ang+2,1); % 5 controlli 
+    start = -offset + angol;
+    stop = offset + angol;
+    
+    fprintf("Range [%d-%d]", start,stop);
+    
+    ang = testInRange(anchor, frame, start, stop, 10); %3 controlli
+    ang = testInRange(anchor, frame, ang-offset2, ang+offset2, 1); %5 controlli 
 end
 
 function a = testInRange(anchor,toRotate,startAng,stopAng,step)
@@ -47,7 +53,7 @@ function a = testInRange(anchor,toRotate,startAng,stopAng,step)
                 break;
             end
         end
-        ANGOLO= ANGOLO + step;
+        ANGOLO = ANGOLO + step;
     end     
 end
 
