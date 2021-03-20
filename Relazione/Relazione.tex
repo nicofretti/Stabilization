@@ -94,7 +94,7 @@ L'algoritmo, presa in input l'ancora, esegue su ogni frame le seguenti operazion
 \end{itemize}
 
 \subsection{Ricerca angolo di rotazione}
-Per la selezione dell'angolo migliore vengono eseguite due passate di ricerca sul frame, nella prima passata viene fatta una ricerca `grossolana', ovvero ricerchiamo l'angolo vericando il valore di cross correllazione entro un intervallo che diminuisce al crescere della risoluzione, dato l'intervallo viene eseguita una ricerca ogni 10$^{\circ}$.
+Per la selezione dell'angolo migliore vengono eseguite due passate di ricerca sul frame, nella prima passata viene fatta una ricerca `grossolana', ovvero ricerchiamo l'angolo verificando il valore di cross-correllazione entro un intervallo che diminuisce al crescere della risoluzione; dato l'intervallo viene eseguita una scansione ogni 10$^{\circ}$.
 
 \begin{figure}[h!]
 	\begin{center}
@@ -103,7 +103,7 @@ Per la selezione dell'angolo migliore vengono eseguite due passate di ricerca su
 	\end{center}
 \end{figure}
 
-Mentre nella seconda passata viene cercato l'angolo in un intervallo piccolo con uno step
+Nella seconda passata viene cercato l'angolo in un intervallo piccolo con uno step
 che dipende dalla risolzione del video.
 
 \begin{figure}[h!]
@@ -119,11 +119,11 @@ Trovato l'angolo, viene ruotato il frame in base ad esso. In seguito viene effet
 \section{Utilizzo}
 Il programma si presenta all'utente con una schermata molto semplice, composta da due
 schermate inizialmente vuote, che mostrano il video originale e la versione stabilizzata.
-In basso alla nestra vi sono tre tasti:
+In basso alla finestra vi sono tre tasti:
 \begin{itemize}
 	\item Scegli video: permette di cambiare il video da stabilizzare
 	\item Stabilizza: scelta dell'ancora rispetto a cui stabilizzare
-	\item Play: riproduci il video
+	\item Riproduci: riproduci il video
 \end{itemize}
 
 \begin{figure}[h!]
