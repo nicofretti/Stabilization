@@ -7,7 +7,7 @@ global btnFileChooser btnStabilizer btnReplay;
 global path file;
 global tipo;
 
-display("-Inizio programma");
+fprintf("-Inizio programma\n");
 %Show GUI
 createPanelAxisTitle();
 
@@ -15,14 +15,13 @@ function createPanelAxisTitle()
     global fig sub1 sub2 btnFileChooser btnStabilizer btnReplay;
     
     % Create panel
-    fig = figure();
+    fig = figure('Resize','off');
+    set(fig, 'DefaultFigurePosition', [550,450,650,375]);
 
     sub1 = subplot(1,2,1, 'Parent', fig);
-    title('Original video');
     axis off;
     
     sub2 = subplot(1,2,2, 'Parent', fig);
-    title(sub2,'Stabilized video');
     axis off;
        
     % Buttons
@@ -31,13 +30,20 @@ function createPanelAxisTitle()
             {@chooseVideo});        
     
     btnStabilizer = uicontrol(fig,'unit','pixel','style','pushbutton','string','Stabilize',...
-            'position',[140 10 75 25], 'tag','PBButton123','callback',...
+            'position',[140 10 75 25],'callback',...
             {@stabilizeVideo});
     
     btnReplay = uicontrol(fig,'unit','pixel','style','pushbutton','string','Play',...
-            'position',[350 10 75 25], 'tag','PBButton123','callback',...
-            {@replayVideo});        
+            'position',[350 10 75 25],'callback',...
+            {@replayVideo});
+        
+    uicontrol(fig,'unit','pixel','style','text','string','Video originale',...
+            'position',[125 390 100 25], 'FontSize', 11);
+        
+    uicontrol(fig,'unit','pixel','style','text','string','Video stabilizzato',...
+        'position',[350 390 170 25], 'FontSize', 11);
     
+
     set(btnReplay, 'Enable', 'off');
     set(btnStabilizer, 'Enable', 'off');
 end
@@ -70,7 +76,6 @@ function chooseVideo(hObject,eventdata)
         
         set(btnStabilizer, 'Enable', 'on')
         image(sub1, video.read(1));
-        title('Original video');
     end    
 end
 
@@ -100,14 +105,14 @@ end
     end
 
     %close(fig);
-    display("Output file...");
+    fprintf("Output file...\n");
     % Write stabilized video
     output = VideoWriter('output');
     open(output);
     for i=1:nFrames-1
         writeVideo(output,mat2gray(videoOutput(:,:,:,i)));
     end
-    display("Done");
+    fprintf("Done\n");
     close(output);
     v1 = VideoReader(strcat(path, file));
     v2 = VideoReader('output.avi');
