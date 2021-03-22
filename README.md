@@ -4,7 +4,7 @@ Progetto scritto in **MatLab** per la [stabilizzazione](https://link.springer.co
 
 Considerazioni:
 
-- É stato scelto di stabilizzare l’`Ancora` al centro del frame, in maniera tale da notare meglio la stabilizzazione
+- È stato scelto di stabilizzare l’`Ancora` al centro del frame, in maniera tale da notare meglio la stabilizzazione
 - Gli spazi vuoti lasciati dall’imagine traslata vengono riempiti di nero
 - Viene assunto che il video sia stato registrato da una persona, e quindi tra un frame e l’altro non ci sono variaizioni di angolo maggiori di 30°
 
