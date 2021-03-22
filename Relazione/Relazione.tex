@@ -72,48 +72,52 @@
 \clearpage
 
 \section{Introduzione}
-Viene richiesta la progettazione del codice MatLab per la stabilizzazione un video. Quest'ulti-
-ma, preso in input un video, deve operare sulla traslazione e rotazione dello stesso in modo da
-stabilizzarlo secondo un'ancora, ovvero una porzione di video selezionata dall'utente.
+Viene richiesta la progettazione del codice MatLab per la stabilizzazione di un video. Quest'ultima, preso in input un video, deve operare sulla traslazione e rotazione dello stesso in modo da
+stabilizzarlo secondo un'ancora, ovvero una porzione di video selezionata dall'utente dal primo frame del video.
+\\
 \textbf{Note}:
 \begin{itemize}
-\item È stato scelto di stabilizzare l'ancora al centro del frame, in maniera tale da notare meglio la stabilizzazione rispetto alla porzione di video selezionata
+\item È stato scelto di stabilizzare l'ancora al centro del frame e non nella sua posizione originale
 \item Gli spazi vuoti lasciati dall'imagine traslata vengono riempiti di nero
 \item Viene assunto che il video sia stato registrato da una persona, e quindi tra un frame e l'altro non ci sono variaizioni di angolo maggiori di n$^{\circ}$, dove n, per questioni di efficienza, dipende dalla risoluzione del video
+\item Il programma non è in grado di gestire cambiamenti prospettici o scalatura dell'ancora (zoom in e out)
 \end{itemize}
 
 \clearpage
 \section{Approccio utilizzato}
-L'operazione che rende possible la stabilizzazione e la cross-corellazione. Intuitivamente, permette di scorrere un determinato template su un'immagine di riferimento e trovare la posizione in cui il template e più simile all'immagine.
+L'operazione che rende possible la stabilizzazione è la cross-corellazione. Intuitivamente, essa permette di scorrere un determinato template su un'immagine di riferimento e trovare la posizione in cui il template è più simile all'immagine.
 L'algoritmo, presa in input l'ancora, esegue su ogni frame le seguenti operazioni:
-
 \begin{itemize}
-\item ricerca e applicazione dell'angolo di rotazione sul frame attuale
-\item cross-correlazione tra ancora e frame ruotato per ricavare l'offset
+\item ricerca e applicazione dell'angolo di rotazione
+\item cross-correlazione tra ancora e frame ruotato per ricavare l'offset di traslazione
 \item traslazione del frame in base all'offset ricavato
 \end{itemize}
 
 \subsection{Ricerca angolo di rotazione}
-Per la selezione dell'angolo migliore vengono eseguite due passate di ricerca sul frame, nella prima passata viene fatta una ricerca `grossolana', ovvero ricerchiamo l'angolo verificando il valore di cross-correllazione entro un intervallo che diminuisce al crescere della risoluzione; dato l'intervallo viene eseguita una scansione ogni 10$^{\circ}$.
+Per la selezione dell'angolo migliore vengono eseguite due passate di ricerca, nella prima viene fatta una ricerca `grossolana', ovvero ricerchiamo l'angolo verificando il valore di cross-correllazione entro un intervallo che diminuisce al crescere della risoluzione; dato l'intervallo viene eseguita una scansione ogni 10$^{\circ}$.
 
 \begin{figure}[h!]
 	\begin{center}
-	  \fbox{\includegraphics[scale=0.6]{media/chart_1}}
-	  \caption{Esempio passata inziale con risoluzione < 640*480}
+	  \fbox{\includegraphics[]{media/chart_1}}
+	  \caption{Esempio passata inziale con video di risoluzione $<$ 640*480}
 	\end{center}
 \end{figure}
 
-Nella seconda passata viene cercato l'angolo in un intervallo piccolo con uno step
-che dipende dalla risolzione del video.
+\clearpage
+
+Nella seconda passata viene cercato l'angolo in un intervallo più ristretto con uno step che dipende dalla risolzione del video.
+
 
 \begin{figure}[h!]
 	\begin{center}
-	  \fbox{\includegraphics[scale=0.6]{media/chart_2}}
-	  \caption{Esempio seconda passata con risoluzione < 640*480, con 0$^{\circ}$ come risulato della prima passata}
+	  \fbox{\includegraphics[]{media/chart_2}}
+	  \caption{Esempio seconda passata con video di risoluzione $<$ 640*480, con 0$^{\circ}$ come risulato della prima passata}
 	\end{center}
 \end{figure}
 
-Trovato l'angolo, viene ruotato il frame in base ad esso. In seguito viene effettuata un'altra cross-correlaziona per trovare l'offset con cui eseguire la traslazione. Ripetendo queste operazioni per ogni frame il risultato e un video che presenta l'ancora al centro del frame, stabile rispetto a traslazione e rotazione.
+
+\subsection{Calcolo dell'offset di traslazione}
+Trovato l'angolo, viene ruotato il frame in base ad esso. In seguito viene effettuata un'altra cross-correlazione per trovare l'offset con cui eseguire la traslazione. Ripetendo queste operazioni per ogni frame il risultato è un video che presenta l'ancora al centro del frame, stabile rispetto a traslazione e rotazione.
 
 \clearpage
 \section{Utilizzo}
@@ -121,14 +125,14 @@ Il programma si presenta all'utente con una schermata molto semplice, composta d
 schermate inizialmente vuote, che mostrano il video originale e la versione stabilizzata.
 In basso alla finestra vi sono tre tasti:
 \begin{itemize}
-	\item Scegli video: permette di cambiare il video da stabilizzare
-	\item Stabilizza: scelta dell'ancora rispetto a cui stabilizzare
-	\item Riproduci: riproduci il video
+	\item \textbf{Scegli video}: permette di cambiare il video da stabilizzare
+	\item \textbf{Stabilizza}: scelta dell'ancora rispetto a cui stabilizzare
+	\item \textbf{Riproduci}: viene riprodotto il video originale a sinistra e quello stabilizzato a destra
 \end{itemize}
 
 \begin{figure}[h!]
 	\begin{center}
-	  \fbox{\includegraphics[scale=0.6]{media/UI}}
+	  \fbox{\includegraphics[]{media/UI}}
 	  \caption{Schermata del programma}
 	\end{center}
 \end{figure}
