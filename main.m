@@ -17,10 +17,10 @@ function createPanelAxisTitle()
     % Create panel
     fig = figure('Resize','off');
 
-    sub1 = subplot(1,2,1, 'Parent', fig);
+    sub1 = subplot(1,2,1, 'Parent', fig); %Original video
     axis off;
     
-    sub2 = subplot(1,2,2, 'Parent', fig);
+    sub2 = subplot(1,2,2, 'Parent', fig); %Stabilized video
     axis off;
        
     % Buttons
@@ -36,6 +36,7 @@ function createPanelAxisTitle()
             'position',[350 10 75 25],'callback',...
             {@replayVideo});
         
+    % Labels
     uicontrol(fig,'unit','pixel','style','text','string','Video originale',...
             'position',[125 390 100 25], 'FontSize', 11);
         
@@ -97,11 +98,11 @@ end
     for i = 1:nFrames-1
         text = sprintf('Attendere la stabilizzazione %d/%d',i,nFrames);
         waitbar(i/nFrames,f,text);
+        
         frame = video.readFrame();
         [offset,ang] = CustomXcorr(R,C,anchor,rgb2gray(frame),ang,tipo);
-        stabilizedFrame = imtranslate(imrotate(frame,ang,'bilinear','crop')...
-            ,offset,'FillValues',0);
-        %image(sub2, stabilizedFrame);
+        stabilizedFrame = imtranslate(imrotate(frame,ang,'bilinear','crop'),offset,'FillValues',0);
+        
         videoOutput(:,:,:,i) = stabilizedFrame; %add stabilized frame to video output  
     end
 
